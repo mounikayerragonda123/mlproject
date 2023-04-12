@@ -1,0 +1,44 @@
+import numpy as np
+import pandas as pd
+df=pd.read_csv("C:/Users/91765/Downloads/stress.csv")
+df.head()
+df.describe()
+df.isnull()
+df.isnull().sum()
+import nltk
+import re
+from nltk. corpus import stopwords
+import string
+nltk. download( 'stopwords' ) #to showcase the important words extract from the provided dataset. hhhhh
+stemmer = nltk. SnowballStemmer("english") # used to stem the words which are ending with the ing pattren like that
+stopword=set (stopwords . words ( 'english' )) #to remove regular words in txt like is the to of
+
+def clean(text):
+    text=str(text) . lower() #returns a string where all characters are lowercase.symbols and numbers are ignored.
+    text=re. sub('\[.*?\]',' ',text) #substring and returns a string with replaced values
+    text=re. sub('https?://\S+/www\. \S+',' ', text) # whitespace char with pattern
+    text=re. sub('<. *?>+', ' ', text) #special char enclosed with pattern
+    text=re. sub(' [%s]' % re. escape(string. punctuation), ' ',text) #eliminate punctuation from string
+    text=re. sub(' \n',' ', text)
+    text=re. sub(' \W*\d\W*' , ' ', text) #word character ASCII PUNCTUATION
+    text=[word for word in text. split(' ') if word not in stopword] #remove morphological offixes from words
+    text=" ".join(text)
+    text=[stemmer . stem(word) for word in text. split(' ') ]
+    text=" ". join(text)
+    return text
+df [ "text" ]=df["text"]. apply(clean)
+from sklearn. feature_extraction. text import CountVectorizer
+from sklearn. model_selection import train_test_split
+x = np.array (df["text"]) # creating array for text column in dataset
+y = np.array (df["label"]) # creating array for label column in dataset
+cv =CountVectorizer ()
+X = cv. fit_transform(x) #calculate mean and standard deviation
+print(X)
+xtrain, xtest ,ytrain, ytest = train_test_split(X, y,test_size=0.33,random_state=42)
+from sklearn.naive_bayes import BernoulliNB
+model=BernoulliNB()
+model.fit(xtrain,ytrain)
+user=input("enter the text")
+data=cv.transform([user]).toarray()
+output=model.predict(data)
+print(output)
